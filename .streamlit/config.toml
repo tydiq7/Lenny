@@ -1,0 +1,16 @@
+# Lenny theme: forest green. Streamlit shows a Light / Dark / System switch under menu > Settings,
+# and uses the matching section below.
+
+[theme.light]
+primaryColor = "#228B22"
+backgroundColor = "#F8FAF6"
+secondaryBackgroundColor = "#E8F0E5"
+textColor = "#1B2A1B"
+chartCategoricalColors = ["#228B22", "#D98A1F", "#2F7FB5", "#B0486F", "#6B7B6B"]
+
+[theme.dark]
+primaryColor = "#3FA34D"
+backgroundColor = "#0F1A12"
+secondaryBackgroundColor = "#1A2B1E"
+textColor = "#E6EFE6"
+chartCategoricalColors = ["#3FA34D", "#F0A53A", "#5BA8DC", "#D8709A", "#9AAA9A"]

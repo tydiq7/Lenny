@@ -1,0 +1,8 @@
+streamlit
+google-genai
+pillow
+python-dotenv
+pypdfium2
+numpy
+pandas
+faster-whisper
