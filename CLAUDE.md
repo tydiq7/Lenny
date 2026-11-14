@@ -2,10 +2,10 @@
 AI study coach that makes the user do the learning (recall, spaced repetition, Feynman, pretest, diagrams) and grades them with an open-weight model.
 
 ## Stack
-Python 3.10+, Streamlit UI, `openai` SDK against any OpenAI-compatible API (default: OpenRouter free tier), Pillow, SQLite (stdlib), python-dotenv. Optional: faster-whisper as an offline voice fallback.
+Python 3.10+, Streamlit UI, `openai` SDK against any OpenAI-compatible API (default: OpenRouter free tier), Pillow, SQLite (stdlib), python-dotenv, faster-whisper (local open-source Whisper for voice; OpenRouter requires $0.50+ balance for audio input).
 
 ## Model
-Primary `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` (text + image + audio input), fallback `nvidia/nemotron-3.5-super-vl:free` (text + image). Set in config.py. Key: `OPENROUTER_API_KEY` in .env or Streamlit secrets.
+Primary `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` (text + image; audio only if AUDIO_SOURCE="model"), fallback `nvidia/nemotron-3.5-super-vl:free` (text + image). Set in config.py. Key: `OPENROUTER_API_KEY` in .env or Streamlit secrets.
 
 ## Files
 app.py, config.py, llm_client.py, prompts.py, storage.py, scheduler.py, coach.py, speech.py,

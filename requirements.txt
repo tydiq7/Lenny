@@ -5,6 +5,4 @@ python-dotenv
 pypdfium2
 numpy
 pandas
-# Optional: offline speech-to-text fallback if the AI model can't transcribe audio.
-# Uncomment for local use; leave out when deploying to Streamlit Community Cloud.
-# faster-whisper
+faster-whisper  # open-source Whisper for voice answers (downloads a ~150 MB model on first use)

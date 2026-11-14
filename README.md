@@ -27,9 +27,11 @@ Lenny uses **NVIDIA Nemotron 3 Nano Omni** (`nvidia/nemotron-3-nano-omni-30b-a3b
 
 - **Open weights** (NVIDIA Open Model License).
 - **Free:** $0 per token on OpenRouter, with a daily request limit.
-- **Text, image and audio input in one model**, so photos of notes, hand-drawn diagrams and voice answers all go to the same model.
+- **Text and image input**, so it reads photos of notes and hand-drawn diagrams.
 
-Fallback for text and image requests: `nvidia/nemotron-3.5-super-vl:free`. Voice falls back to local `faster-whisper` if it's installed.
+Fallback for text and image requests: `nvidia/nemotron-3.5-super-vl:free`.
+
+**Voice** answers are transcribed on your own computer with **Whisper** (open-source speech recognition, via `faster-whisper`). The first recording downloads a ~150 MB model, and after that it works offline. The main model can also take audio directly (`AUDIO_SOURCE = "model"` in `config.py`), but OpenRouter only allows audio input on accounts with at least $0.50 of credit, even for free models, so local Whisper is the default.
 
 To use a different model or provider, edit the model lines in `config.py`. Any OpenAI-compatible API works (OpenRouter, Groq, Together, or a local Ollama/vLLM server). Then run `python test_model.py` to check that text, images and audio still work.
 
@@ -39,9 +41,9 @@ To use a different model or provider, edit the model lines in `config.py`. Any O
 git clone https://github.com/tydiq7/StudyBuddy.git
 cd StudyBuddy
 python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 cp .env.example .env    # then paste your key into .env
-python test_model.py    # checks text, JSON, image and audio
+python test_model.py    # checks text, JSON, image and voice
 streamlit run app.py
 ```
 
@@ -80,7 +82,7 @@ app.py            Streamlit UI: sidebar, navigation, coach card
 config.py         Model/provider settings and timing constants
 llm_client.py     The only module that calls the model (text, JSON, images, audio)
 prompts.py        Every prompt template
-speech.py         Voice -> text (model first, optional local Whisper fallback)
+speech.py         Voice -> text (local Whisper by default, or the model)
 storage.py        SQLite schema and queries
 scheduler.py      Spaced repetition (Leitner boxes), no AI
 coach.py          Picks the next activity, no AI except the one-sentence reason

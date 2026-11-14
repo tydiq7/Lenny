@@ -13,6 +13,11 @@ MODEL_ID = os.getenv("LLM_MODEL", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning
 # Used if the main model fails or is rate-limited. Text + image only (no audio).
 FALLBACK_MODEL_ID = os.getenv("LLM_FALLBACK_MODEL", "nvidia/nemotron-3.5-super-vl:free")
 
+# Voice answers: "whisper" = transcribe locally with open-source Whisper (free, no API call).
+# "model" = send audio to MODEL_ID. OpenRouter requires a $0.50+ credit balance for audio
+# input even on free models, so local Whisper is the default.
+AUDIO_SOURCE = os.getenv("LLM_AUDIO_SOURCE", "whisper")
+
 MAX_TOKENS = 4000  # cap per response; the main model "thinks" before answering, which uses tokens
 
 # Timing / scheduling constants (DESIGN.md section 8)

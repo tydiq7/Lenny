@@ -1,15 +1,16 @@
 """Speech to text for voice answers (blurt, Feynman).
 
-The main model (see config.py) accepts audio directly, so the recording is sent to it for a
-transcript. If that fails (e.g. the free model is rate-limited) and faster-whisper is installed,
-the recording is transcribed locally instead. faster-whisper is optional: install it with
-`pip install faster-whisper` if you want the offline fallback.
+By default (config.AUDIO_SOURCE = "whisper") recordings are transcribed on this computer with
+faster-whisper, an open-source Whisper model: free, private, and no API call. Set
+AUDIO_SOURCE = "model" to send audio to the AI model instead (OpenRouter needs a $0.50+ credit
+balance for that); local Whisper is then used as a fallback if the model call fails.
 """
 import io
 import wave
 
 import numpy as np
 
+import config
 import llm_client
 
 WHISPER_MODEL = "base.en"  # small English model, ~150 MB, downloaded once on first use
@@ -48,8 +49,18 @@ def _transcribe_locally(samples):
     return " ".join(s.text.strip() for s in segments).strip()
 
 
+def _local_or_error(samples, message_if_missing):
+    """Transcribe with local Whisper; if it isn't installed, raise SpeechError with the given message."""
+    try:
+        return _transcribe_locally(samples)
+    except ImportError:
+        raise SpeechError(message_if_missing)
+    except Exception as e:
+        raise SpeechError(f"Could not transcribe the recording: {e}")
+
+
 def transcribe(wav_bytes):
-    """WAV bytes -> text. Tries the AI model first, then local Whisper if available."""
+    """WAV bytes -> text, using local Whisper or the AI model depending on config.AUDIO_SOURCE."""
     try:
         samples = _wav_to_samples(wav_bytes)
     except SpeechError:
@@ -59,15 +70,13 @@ def transcribe(wav_bytes):
     if len(samples) < 16000 * 0.5:
         raise SpeechError("That recording was too short. Please try again.")
 
-    try:
-        text = llm_client.transcribe_audio(wav_bytes)
-    except llm_client.LLMError as model_error:
+    if config.AUDIO_SOURCE == "model":
         try:
-            text = _transcribe_locally(samples)
-        except ImportError:
-            raise SpeechError(str(model_error))
-        except Exception as e:
-            raise SpeechError(f"Could not transcribe the recording: {e}")
+            text = llm_client.transcribe_audio(wav_bytes)
+        except llm_client.LLMError as model_error:
+            text = _local_or_error(samples, str(model_error))
+    else:
+        text = _local_or_error(samples, "Voice needs faster-whisper: run  python -m pip install faster-whisper")
     if not text:
         raise SpeechError("I couldn't hear any speech in that recording. Please try again.")
     return text
