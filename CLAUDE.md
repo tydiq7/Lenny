@@ -1,18 +1,18 @@
 # Lenny, "Learn Anything" (repo: StudyBuddy)
-AI study coach that makes the user do the learning (recall, spaced repetition, Feynman, pretest, diagrams) and grades them with Gemma 4.
+AI study coach that makes the user do the learning (recall, spaced repetition, Feynman, pretest, diagrams) and grades them with an open-weight model.
 
 ## Stack
-Python 3.10+, Streamlit UI, `google-genai` (Gemma 4 via Gemini API), Pillow, SQLite (stdlib), python-dotenv, faster-whisper (voice to text; Gemma 4 API has no audio input).
+Python 3.10+, Streamlit UI, `openai` SDK against any OpenAI-compatible API (default: OpenRouter free tier), Pillow, SQLite (stdlib), python-dotenv. Optional: faster-whisper as an offline voice fallback.
 
 ## Model
-Primary `gemma-4-26b-a4b-it`, fallback `gemma-4-31b-it` (set in config.py).
+Primary `nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free` (text + image + audio input), fallback `nvidia/nemotron-3.5-super-vl:free` (text + image). Set in config.py. Key: `OPENROUTER_API_KEY` in .env or Streamlit secrets.
 
 ## Files
-app.py, config.py, gemma_client.py, prompts.py, storage.py, scheduler.py, coach.py,
-features/{ingest,pretest,blurt,review,feynman,diagram,spot_error}.py,
-sample_data/sample_notes.md, .env (GEMINI_API_KEY, gitignored), requirements.txt, README.md
+app.py, config.py, llm_client.py, prompts.py, storage.py, scheduler.py, coach.py, speech.py,
+features/{ingest,pretest,blurt,review,feynman,diagram,spot_error,...}.py,
+eval/{grader_eval.py,labeled_answers.csv}, test_model.py, sample_data/sample_notes.md, requirements.txt, README.md
 
 ## Rules
-Build in DESIGN.md §10 phase order, MVP scope only (§2). Keep code simple, commented.
-
-Full spec in DESIGN.md — read the relevant section per phase.
+- llm_client.py is the only module that calls the model; features use ask_text / ask_json / speech.transcribe.
+- Deterministic logic (scheduling, coach decisions) stays in plain Python, no model calls.
+- Keep code simple and commented. DESIGN.md is the original hackathon spec (its model sections are out of date).

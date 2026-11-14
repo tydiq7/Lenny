@@ -1,5 +1,5 @@
 """Spaced repetition (Leitner boxes) + successive relearning + confidence rules (F4/F5).
-All app logic, no Gemma. Times use the simulated clock from storage.now()."""
+All app logic, no AI calls. Times use the simulated clock from storage.now()."""
 from datetime import timedelta
 
 import config

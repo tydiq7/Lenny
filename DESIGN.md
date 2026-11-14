@@ -1,3 +1,5 @@
+> **Note (Nov 2026):** this is the original hackathon spec. Lenny no longer uses Gemma 4 via the Gemini API: it now calls a free open-weight model (NVIDIA Nemotron 3 Nano Omni on OpenRouter) through `llm_client.py`, and voice goes to the model directly instead of local Whisper. See README.md and config.py for the current setup. Mentions of "Gemma" and `gemma_client.py` below refer to that earlier version.
+
 # Lenny (Learn Anything) — App Design Document
 
 > **For Claude Code:** This is the source of truth for the project. Build in the phase order in §10, keep the MVP scope in §2, and don't add features listed as out of scope. Prefer simple, working code over abstraction — this is a ~4-hour hackathon build by a beginner, so explain non-obvious code with short comments.

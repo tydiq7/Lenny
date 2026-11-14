@@ -6,7 +6,7 @@ import random
 
 import streamlit as st
 
-import gemma_client
+import llm_client
 import prompts
 import storage
 
@@ -26,17 +26,17 @@ def _generate(note_id, concept_id):
         chosen = concepts[:2]
     ref = json.dumps([{"concept": c["name"], "key_facts": json.loads(c["key_facts"])} for c in chosen])
     mode = random.choice(["subtle", "subtle", "obvious"])  # mostly the real learning tool, sometimes an attention check
-    data = gemma_client.ask_json(prompts.spot_error_prompt(5, mode, ref))
+    data = llm_client.ask_json(prompts.spot_error_prompt(5, mode, ref))
     for key in ("paragraph", "error_text", "error_explanation", "correct_version"):
         if not str(data.get(key, "")).strip():
-            raise ValueError(f"Gemma's answer was missing '{key}'")
+            raise ValueError(f"The model's answer was missing '{key}'")
     return {"data": data, "mode": mode, "fallback_concept": chosen[0]["id"], "result": None}
 
 
 def _grade(ss, sp, student_error, student_why, student_fix):
-    """Gemma compares the three typed answers to the answer key; the score is computed here."""
+    """The model compares the three typed answers to the answer key; the score is computed here."""
     d = sp["data"]
-    g = gemma_client.ask_json(prompts.spot_grading_prompt(
+    g = llm_client.ask_json(prompts.spot_grading_prompt(
         d["paragraph"], d["error_text"], d["error_explanation"], d["correct_version"],
         student_error, student_why, student_fix))
     found = bool(g.get("found_error"))
@@ -64,7 +64,7 @@ def render(concept_id=None):
         with st.spinner("Thinking..."):
             try:
                 ss.spot = _generate(ss.note_id, concept_id)
-            except (gemma_client.GemmaError, KeyError, TypeError, ValueError) as e:
+            except (llm_client.LLMError, KeyError, TypeError, ValueError) as e:
                 st.error(f"Could not make the challenge: {e}")
                 st.button("Try again")  # any click re-runs the script, which regenerates
                 return False
@@ -88,7 +88,7 @@ def render(concept_id=None):
             with st.spinner("Thinking..."):
                 try:
                     sp["result"] = _grade(ss, sp, err, why, fix)
-                except gemma_client.GemmaError as e:
+                except llm_client.LLMError as e:
                     st.error(str(e))
                     return False
             st.rerun()

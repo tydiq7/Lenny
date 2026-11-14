@@ -5,7 +5,7 @@ from datetime import timedelta
 
 import streamlit as st
 
-import gemma_client
+import llm_client
 import prompts
 import scheduler
 import storage
@@ -30,7 +30,7 @@ def _pick(note_id):
 def _check(ss, item_id, answer):
     item = storage.query("SELECT r.*, c.name AS concept_name FROM review_items r JOIN concepts c"
                          " ON r.concept_id=c.id WHERE r.id=?", (item_id,))[0]
-    res = gemma_client.ask_json(prompts.review_grading_prompt(item["question"], item["answer"], answer))
+    res = llm_client.ask_json(prompts.review_grading_prompt(item["question"], item["answer"], answer))
     correct = bool(res.get("correct"))
     storage.credit_techniques(item["concept_id"], correct)  # before logging the attempt, as in Review
     scheduler.apply_answer(item, correct, 3, ss.session_id)  # no confidence slider here: use a neutral 3
@@ -69,7 +69,7 @@ def render_card(note_id):
                     with st.spinner("Thinking..."):
                         try:
                             ss.daily_results[item_id] = _check(ss, item_id, ans)
-                        except gemma_client.GemmaError as e:
+                        except llm_client.LLMError as e:
                             st.error(str(e))
                             continue
                     st.rerun()

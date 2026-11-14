@@ -4,7 +4,7 @@ import json
 
 import streamlit as st
 
-import gemma_client
+import llm_client
 import prompts
 import storage
 
@@ -27,7 +27,7 @@ def render(concept_id=None):
 
     question = st.chat_input("Ask Lenny a question...")
     if question:
-        # Show the question straight away, then ask Gemma with the notes and the last few messages
+        # Show the question straight away, then ask the model with the notes and the last few messages
         with st.chat_message("user"):
             st.write(question)
         concepts = storage.concepts_of(ss.note_id, "name, key_facts") if ss.note_id else []
@@ -37,8 +37,8 @@ def render(concept_id=None):
         with st.chat_message("assistant"):
             with st.spinner("Thinking..."):
                 try:
-                    answer = gemma_client.ask_text(prompts.ask_lenny_prompt(notes_json, recent, question))
-                except gemma_client.GemmaError as e:
+                    answer = llm_client.ask_text(prompts.ask_lenny_prompt(notes_json, recent, question))
+                except llm_client.LLMError as e:
                     st.error(str(e))
                     return False
         chat.append({"role": "user", "text": question})

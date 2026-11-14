@@ -1,8 +1,10 @@
-streamlit
-google-genai
+streamlit>=1.40
+openai>=1.40
 pillow
 python-dotenv
 pypdfium2
 numpy
 pandas
-faster-whisper
+# Optional: offline speech-to-text fallback if the AI model can't transcribe audio.
+# Uncomment for local use; leave out when deploying to Streamlit Community Cloud.
+# faster-whisper

@@ -1,0 +1,25 @@
+id,question,reference_answer,student_answer,human_label,reviewed
+1,What does the law of demand say?,"As price rises, quantity demanded falls, all else equal.","When the price goes up people buy less of it, if nothing else changes.",correct,no
+2,What does the law of demand say?,"As price rises, quantity demanded falls, all else equal.",Higher price means lower quantity demanded.,correct,no
+3,What does the law of demand say?,"As price rises, quantity demanded falls, all else equal.",Price and demand move in the same direction.,wrong,no
+4,What does the law of demand say?,"As price rises, quantity demanded falls, all else equal.",People buy less.,partial,no
+5,What happens when the price is above equilibrium?,"There is a surplus, so prices fall.",You get a surplus and the price drops back down.,correct,no
+6,What happens when the price is above equilibrium?,"There is a surplus, so prices fall.",There's a surplus.,partial,no
+7,What happens when the price is above equilibrium?,"There is a surplus, so prices fall.","A shortage, so prices go up.",wrong,no
+8,What happens when the price is above equilibrium?,"There is a surplus, so prices fall.",Supply is bigger than demand so sellers cut prices.,correct,no
+9,How is price elasticity of demand calculated?,Percentage change in quantity demanded divided by percentage change in price.,% change in quantity demanded over % change in price.,correct,no
+10,How is price elasticity of demand calculated?,Percentage change in quantity demanded divided by percentage change in price.,Change in price divided by change in quantity.,wrong,no
+11,How is price elasticity of demand calculated?,Percentage change in quantity demanded divided by percentage change in price.,It compares how much quantity demanded changes when price changes.,partial,no
+12,How is price elasticity of demand calculated?,Percentage change in quantity demanded divided by percentage change in price.,quantity demanded divided by price,wrong,no
+13,When is demand called elastic?,When the absolute value of elasticity is greater than 1.,When the absolute value is more than 1.,correct,no
+14,When is demand called elastic?,When the absolute value of elasticity is greater than 1.,"When elasticity is above 1, like for luxuries.",correct,no
+15,When is demand called elastic?,When the absolute value of elasticity is greater than 1.,When people are very sensitive to price.,partial,no
+16,When is demand called elastic?,When the absolute value of elasticity is greater than 1.,When it's less than 1.,wrong,no
+17,"What shifts the demand curve, as opposed to moving along it?","A change in income, tastes, or the price of related goods; a change in the good's own price only moves along the curve.","Income, tastes, and prices of related goods shift it; the good's own price is a movement along it.",correct,no
+18,"What shifts the demand curve, as opposed to moving along it?","A change in income, tastes, or the price of related goods; a change in the good's own price only moves along the curve.",Changes in income or what people like.,partial,no
+19,"What shifts the demand curve, as opposed to moving along it?","A change in income, tastes, or the price of related goods; a change in the good's own price only moves along the curve.",A change in the price of the good itself shifts the demand curve.,wrong,no
+20,"What shifts the demand curve, as opposed to moving along it?","A change in income, tastes, or the price of related goods; a change in the good's own price only moves along the curve.","Anything other than the good's own price, like income or the price of substitutes.",correct,no
+21,What shifts the supply curve?,A change in input costs or technology.,Input costs and technology.,correct,no
+22,What shifts the supply curve?,A change in input costs or technology.,Cheaper raw materials or better technology.,correct,no
+23,What shifts the supply curve?,A change in input costs or technology.,A change in the good's price.,wrong,no
+24,What shifts the supply curve?,A change in input costs or technology.,Technology.,partial,no

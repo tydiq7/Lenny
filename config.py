@@ -1,7 +1,19 @@
-# Model IDs for Gemma 4 via the Gemini API.
-# test_gemma.py checks which one works; update MODEL_ID here if the fallback is needed.
-MODEL_ID = "gemma-4-26b-a4b-it"
-FALLBACK_MODEL_ID = "gemma-4-31b-it"
+# ---- Model settings ----
+# Lenny talks to any OpenAI-compatible API. The defaults use OpenRouter's free tier.
+# To switch provider or model, change these lines only (or set the matching env vars).
+# Run `python test_model.py` after any change to check text, image and audio all work.
+import os
+
+BASE_URL = os.getenv("LLM_BASE_URL", "https://openrouter.ai/api/v1")
+API_KEY_ENV = "OPENROUTER_API_KEY"  # name of the env var / Streamlit secret holding the key
+
+# Main model: NVIDIA Nemotron 3 Nano Omni. Open weights, free on OpenRouter, and it takes
+# text, images AND audio as input, so one model covers every feature.
+MODEL_ID = os.getenv("LLM_MODEL", "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free")
+# Used if the main model fails or is rate-limited. Text + image only (no audio).
+FALLBACK_MODEL_ID = os.getenv("LLM_FALLBACK_MODEL", "nvidia/nemotron-3.5-super-vl:free")
+
+MAX_TOKENS = 4000  # cap per response; the main model "thinks" before answering, which uses tokens
 
 # Timing / scheduling constants (DESIGN.md section 8)
 DEMO_MODE = True

@@ -1,11 +1,11 @@
 """F10: Know Me. Optional onboarding that builds a learner baseline the coach starts from.
-Uploaded files are turned into images, sent to Gemma, and thrown away: only the profile is saved."""
+Uploaded files are turned into images, sent to the model, and thrown away: only the profile is saved."""
 import json
 
 import streamlit as st
 
 import config
-import gemma_client
+import llm_client
 import pdf_utils
 import prompts
 import storage
@@ -19,11 +19,11 @@ HABIT_OPTIONS = ["Reread notes", "Highlight", "Flashcards", "Practice problems",
 
 
 def _clean(profile):
-    """Make Gemma's output safe for the coach: all six boosts present and clamped to 0.7-1.6."""
+    """Make the model's output safe for the coach: all six boosts present and clamped to 0.7-1.6."""
     if isinstance(profile, list) and profile and isinstance(profile[0], dict):
-        profile = profile[0]  # Gemma sometimes wraps the object in a list
+        profile = profile[0]  # The model sometimes wraps the object in a list
     if not isinstance(profile, dict):
-        raise TypeError("Gemma did not return a profile object")
+        raise TypeError("The model did not return a profile object")
     boosts = profile.get("technique_boosts") or {}
     clean = {}
     for t in config.TECHNIQUES:
@@ -122,9 +122,9 @@ def render(concept_id=None):
                                   "self_reported": habits_given})
         with st.spinner("Analyzing... (graded PDFs can take a minute)"):
             try:
-                result = gemma_client.ask_json(prompts.know_me_prompt(habits_json, notes_text, labels), images=images)
+                result = llm_client.ask_json(prompts.know_me_prompt(habits_json, notes_text, labels), images=images)
                 result = _clean(result)
-            except (gemma_client.GemmaError, AttributeError, TypeError) as e:
+            except (llm_client.LLMError, AttributeError, TypeError) as e:
                 st.error(f"Could not analyze: {e}")
                 return False
         storage.save_profile(result)

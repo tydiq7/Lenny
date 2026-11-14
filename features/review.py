@@ -1,9 +1,9 @@
-"""F4 + F5: review queue with confidence ratings. Gemma grades; scheduler.py handles the boxes."""
+"""F4 + F5: review queue with confidence ratings. The model grades; scheduler.py handles the boxes."""
 import json
 
 import streamlit as st
 
-import gemma_client
+import llm_client
 import prompts
 import scheduler
 import storage
@@ -13,7 +13,7 @@ MISTAKE_TYPES = ("conceptual", "careless", "memorization", "procedural")
 
 
 def _mistake(res):
-    """Gemma's mistake_type, or None if it's missing or not one of the four known types."""
+    """The model's mistake_type, or None if it's missing or not one of the four known types."""
     m = str(res.get("mistake_type", "")).strip().lower()
     return m if m in MISTAKE_TYPES else None
 
@@ -73,8 +73,8 @@ def render(concept_id=None):
     if st.button("Submit", type="primary"):
         with st.spinner("Thinking..."):
             try:
-                res = gemma_client.ask_json(prompts.review_grading_prompt(item["question"], item["answer"], answer))
-            except gemma_client.GemmaError as e:
+                res = llm_client.ask_json(prompts.review_grading_prompt(item["question"], item["answer"], answer))
+            except llm_client.LLMError as e:
                 st.error(str(e))
                 return False
         correct = bool(res.get("correct"))

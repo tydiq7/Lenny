@@ -1,4 +1,4 @@
-"""Turn an uploaded image or PDF into PIL images that Gemma can read."""
+"""Turn an uploaded image or PDF into PIL images that the model can read."""
 import io
 
 from PIL import Image

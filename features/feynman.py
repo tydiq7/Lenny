@@ -1,9 +1,9 @@
-"""F6: Feynman mode. The student explains a concept to a curious 12-year-old played by Gemma."""
+"""F6: Feynman mode. The student explains a concept to a curious 12-year-old played by the model."""
 import json
 
 import streamlit as st
 
-import gemma_client
+import llm_client
 import prompts
 import speech
 import storage
@@ -19,9 +19,9 @@ def _evaluate(ss, f, concept):
     """Final evaluation: score + jargon/gaps/accuracy. Saves one 'feynman' attempt."""
     with st.spinner("Thinking..."):
         try:
-            f["eval"] = gemma_client.ask_json(
+            f["eval"] = llm_client.ask_json(
                 prompts.feynman_eval_prompt(concept["name"], concept["key_facts"], _history_text(f["history"])))
-        except gemma_client.GemmaError as e:
+        except llm_client.LLMError as e:
             st.error(str(e))
             return
     storage.record_attempt("feynman", ss.session_id, concept_id=concept["id"],
@@ -94,9 +94,9 @@ def render(concept_id=None):
         f["history"].append({"role": "user", "text": msg})
         with st.spinner("Thinking..."):
             try:
-                kid = gemma_client.ask_text(
+                kid = llm_client.ask_text(
                     prompts.feynman_turn_prompt(concept["name"], concept["key_facts"], _history_text(f["history"])))
-            except gemma_client.GemmaError as e:
+            except llm_client.LLMError as e:
                 st.error(str(e))
                 f["history"].pop()
                 return False

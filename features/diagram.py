@@ -1,4 +1,4 @@
-"""F7: diagram coach. The student draws a concept map on paper; Gemma looks at the photo and
+"""F7: diagram coach. The student draws a concept map on paper; the model looks at the photo and
 asks guiding questions. It never redraws or gives the answer (enforced in the prompt)."""
 import io
 import json
@@ -6,7 +6,7 @@ import json
 import streamlit as st
 from PIL import Image
 
-import gemma_client
+import llm_client
 import prompts
 import storage
 
@@ -15,7 +15,7 @@ def _analyze(note_id, image):
     concepts = storage.concepts_of(note_id, "name, key_facts", st.session_state.get("subtopic"))
     ref = json.dumps([{"concept": c["name"], "key_facts": json.loads(c["key_facts"])} for c in concepts])
     image.thumbnail((1280, 1280))  # smaller photos upload and process faster
-    return gemma_client.ask_json(prompts.diagram_prompt(ref), images=[image])
+    return llm_client.ask_json(prompts.diagram_prompt(ref), images=[image])
 
 
 def _show_result(res):
@@ -35,7 +35,7 @@ def _show_result(res):
 
 def render(concept_id=None):
     ss = st.session_state
-    # Every attempt (photo bytes + Gemma's response) is kept so redraws can be compared side by side.
+    # Every attempt (photo bytes + the model's response) is kept so redraws can be compared side by side.
     d = ss.setdefault("diagram", {"attempts": [], "n": 0})
     note = storage.query("SELECT title FROM notes WHERE id=?", (ss.note_id,))[0]
 
@@ -64,7 +64,7 @@ def render(concept_id=None):
         with st.spinner("Looking at your diagram..."):
             try:
                 result = _analyze(ss.note_id, Image.open(io.BytesIO(data)))
-            except gemma_client.GemmaError as e:
+            except llm_client.LLMError as e:
                 st.error(str(e))
                 return False
         # Log the attempt against the coach's target concept (or the note's first concept)

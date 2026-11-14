@@ -1,13 +1,13 @@
 """The coach decides what the student should do next.
 Layer 1: hard timing rules. Layer 2: score each technique (subject fit x learner effectiveness).
-Only the 'reason' sentence uses Gemma; the decision itself is plain, debuggable Python."""
+Only the 'reason' sentence uses the model; the decision itself is plain, debuggable Python."""
 from datetime import datetime
 
 import numpy as np
 
 import analytics
 import config
-import gemma_client
+import llm_client
 import scheduler
 import storage
 
@@ -165,9 +165,9 @@ def suggest(note_id, session_id, available, skipped=()):
 
 
 def explain(s):
-    """One friendly sentence for the suggestion card. Falls back to a template if Gemma fails."""
+    """One friendly sentence for the suggestion card. Falls back to a template if the model fails."""
     label, concept, f = LABELS[s["activity"]], s["concept_name"], s["factors"]
-    if s["activity"] == "know_me":  # no Gemma call needed for this one
+    if s["activity"] == "know_me":  # no model call needed for this one
         return "Tell me how you study so I can personalise your sessions. It's optional and takes a couple of minutes."
     if "rule" in f:
         fallback = f"{label} on {concept}: {f['rule']}." if concept else f"{label}: {f['rule']}."
@@ -183,7 +183,7 @@ def explain(s):
               "mention it naturally (e.g. 'your graded exams showed...'). If 'time_of_day' is present, "
               "you may mention it gently.")
     try:
-        text = gemma_client.ask_text(prompt).strip().strip('"')
+        text = llm_client.ask_text(prompt).strip().strip('"')
         return text if text else fallback
     except Exception:
         return fallback

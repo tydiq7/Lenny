@@ -1,21 +1,21 @@
 """F3: active recall (the "blurt"). Notes are hidden; the student SPEAKS what they remember; the recording
-is transcribed locally (speech.py) and Gemma grades the transcript against key_facts."""
+is transcribed (speech.py) and the model grades the transcript against key_facts."""
 import json
 
 import streamlit as st
 
-import gemma_client
+import llm_client
 import prompts
 import speech
 import storage
 
 
 def _grade(note_id, blurt):
-    """Call Gemma, save one attempt per concept, and raise review priority on weak concepts."""
+    """Call the model, save one attempt per concept, and raise review priority on weak concepts."""
     concepts = storage.concepts_of(note_id, "id, name, key_facts", st.session_state.get("subtopic"))
-    # The reference sent to Gemma is the key_facts from F1, never the model's own knowledge
+    # The reference sent to the model is the key_facts from F1, never the model's own knowledge
     ref = json.dumps([{"concept": c["name"], "key_facts": json.loads(c["key_facts"])} for c in concepts])
-    result = gemma_client.ask_json(prompts.blurt_grading_prompt(ref, blurt))
+    result = llm_client.ask_json(prompts.blurt_grading_prompt(ref, blurt))
 
     # Per-concept outcome: missed = 0, stated something wrong = 0.5, otherwise 1 (matched by name)
     outcome = {c["id"]: 1.0 for c in concepts}
@@ -61,7 +61,7 @@ def render(concept_id=None):
             with st.spinner("Thinking..."):
                 try:
                     graded = _grade(note_id, blurt)
-                except gemma_client.GemmaError as e:
+                except llm_client.LLMError as e:
                     st.error(str(e))
                     return False
             graded["transcript"] = blurt  # shown with the results so the student can check what was heard

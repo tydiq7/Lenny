@@ -190,7 +190,7 @@ daily_recall.render_card(ss.note_id)  # shows only when some questions are 3+ da
 if ss.get("suggestion", {}).get("note_id") != ss.note_id:
     s = coach.suggest(ss.note_id, ss.session_id, BUILT, ss.skipped)
     if s["activity"]:
-        s["reason"] = coach.explain(s)  # one short Gemma call
+        s["reason"] = coach.explain(s)  # one short model call
     s["note_id"] = ss.note_id
     ss.suggestion = s
 s = ss.suggestion

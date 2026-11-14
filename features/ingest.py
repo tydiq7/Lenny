@@ -4,7 +4,7 @@ import json
 import streamlit as st
 
 import config
-import gemma_client
+import llm_client
 import pdf_utils
 import prompts
 import storage
@@ -16,7 +16,7 @@ def save_note(title, text, concepts, material_type=None, rationale=""):
     note_id = storage.execute(
         "INSERT INTO notes (title, raw_text, created_at, material_type, material_rationale)"
         " VALUES (?, ?, ?, ?, ?)",
-        # If Gemma returns something unexpected, default to 'conceptual' so the coach still works
+        # If the model returns something unexpected, default to 'conceptual' so the coach still works
         (title, text, now, material_type if material_type in config.MATERIAL_TYPES else "conceptual", rationale),
     )
     n_items = 0
@@ -36,7 +36,7 @@ def save_note(title, text, concepts, material_type=None, rationale=""):
 
 
 def render(concept_id=None):
-    st.write("Add your notes. Gemma extracts the key concepts and makes review questions.")
+    st.write("Add your notes. Lenny extracts the key concepts and makes review questions.")
     mode = st.radio("Input", ["Type / paste text", "Photo or PDF of notes"], horizontal=True)
 
     if mode == "Type / paste text":
@@ -56,8 +56,8 @@ def render(concept_id=None):
                         st.info(m)
                     for im in images:
                         im.thumbnail((1600, 1600))  # smaller images upload and process faster
-                    st.session_state.note_text = gemma_client.ask_text(prompts.transcribe_prompt(), images=images)
-                except gemma_client.GemmaError as e:
+                    st.session_state.note_text = llm_client.ask_text(prompts.transcribe_prompt(), images=images)
+                except llm_client.LLMError as e:
                     st.error(str(e))
                 except Exception as e:  # unreadable or corrupt file
                     st.error(f"Could not read that file: {e}")
@@ -71,12 +71,12 @@ def render(concept_id=None):
             return
         with st.spinner("Thinking..."):
             try:
-                data = gemma_client.ask_json(prompts.extract_concepts_prompt(text))
+                data = llm_client.ask_json(prompts.extract_concepts_prompt(text))
                 concepts = data["concepts"]
                 note_id, n_items = save_note(
                     title.strip(), text, concepts, data.get("material_type"), data.get("rationale", "")
                 )
-            except (gemma_client.GemmaError, KeyError, TypeError) as e:
+            except (llm_client.LLMError, KeyError, TypeError) as e:
                 st.error(f"Could not process the notes: {e}")
                 return
         st.success(f"Saved {len(concepts)} concepts and {n_items} review questions.")

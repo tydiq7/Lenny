@@ -1,13 +1,19 @@
-"""Speech to text. Gemma 4 on the Gemini API does not accept audio ("Audio input modality is not
-enabled for this model"), so voice answers are transcribed locally with faster-whisper (DESIGN.md's
-fallback), and the transcript then goes to Gemma like any typed answer."""
+"""Speech to text for voice answers (blurt, Feynman).
+
+The main model (see config.py) accepts audio directly, so the recording is sent to it for a
+transcript. If that fails (e.g. the free model is rate-limited) and faster-whisper is installed,
+the recording is transcribed locally instead. faster-whisper is optional: install it with
+`pip install faster-whisper` if you want the offline fallback.
+"""
 import io
 import wave
 
 import numpy as np
 
-MODEL_NAME = "base.en"  # small English model, ~150 MB, downloaded once on first use
-_model = None
+import llm_client
+
+WHISPER_MODEL = "base.en"  # small English model, ~150 MB, downloaded once on first use
+_whisper = None
 
 
 class SpeechError(Exception):
@@ -32,22 +38,36 @@ def _wav_to_samples(wav_bytes):
     return audio
 
 
+def _transcribe_locally(samples):
+    """Offline fallback with faster-whisper. Raises ImportError if it isn't installed."""
+    global _whisper
+    if _whisper is None:
+        from faster_whisper import WhisperModel  # optional dependency
+        _whisper = WhisperModel(WHISPER_MODEL, device="cpu", compute_type="int8")
+    segments, _ = _whisper.transcribe(samples, language="en", vad_filter=True)
+    return " ".join(s.text.strip() for s in segments).strip()
+
+
 def transcribe(wav_bytes):
-    """WAV bytes -> text. The first call loads (and the very first run downloads) the model."""
-    global _model
+    """WAV bytes -> text. Tries the AI model first, then local Whisper if available."""
     try:
         samples = _wav_to_samples(wav_bytes)
-        if len(samples) < 16000 * 0.5:
-            raise SpeechError("That recording was too short. Please try again.")
-        if _model is None:
-            from faster_whisper import WhisperModel  # imported here so the app starts even if it's missing
-            _model = WhisperModel(MODEL_NAME, device="cpu", compute_type="int8")
-        segments, _ = _model.transcribe(samples, language="en", vad_filter=True)
-        text = " ".join(s.text.strip() for s in segments).strip()
     except SpeechError:
         raise
-    except Exception as e:
-        raise SpeechError(f"Could not transcribe the recording: {e}")
+    except Exception:
+        raise SpeechError("Couldn't read that recording. Please record again.")
+    if len(samples) < 16000 * 0.5:
+        raise SpeechError("That recording was too short. Please try again.")
+
+    try:
+        text = llm_client.transcribe_audio(wav_bytes)
+    except llm_client.LLMError as model_error:
+        try:
+            text = _transcribe_locally(samples)
+        except ImportError:
+            raise SpeechError(str(model_error))
+        except Exception as e:
+            raise SpeechError(f"Could not transcribe the recording: {e}")
     if not text:
         raise SpeechError("I couldn't hear any speech in that recording. Please try again.")
     return text

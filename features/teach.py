@@ -4,7 +4,7 @@ import json
 
 import streamlit as st
 
-import gemma_client
+import llm_client
 import prompts
 import storage
 
@@ -26,9 +26,9 @@ def render(concept_id=None):
         note = storage.query("SELECT raw_text FROM notes WHERE id=?", (ss.note_id,))[0]
         with st.spinner("Thinking..."):
             try:
-                text = gemma_client.ask_text(prompts.teach_prompt(
+                text = llm_client.ask_text(prompts.teach_prompt(
                     concept["name"], json.loads(concept["key_facts"]), note["raw_text"]))
-            except gemma_client.GemmaError as e:
+            except llm_client.LLMError as e:
                 st.error(str(e))
                 st.button("Try again")  # any click re-runs the script, which regenerates
                 return False
